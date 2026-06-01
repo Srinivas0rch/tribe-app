@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Find Your Tribe — Dashboard</title>
+<title>Find Your Tribe - Dashboard</title>
 <style>
   *{box-sizing:border-box;margin:0;padding:0;}
   body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#0a0714;color:#fff;min-height:100vh;padding:28px;overflow-x:hidden;}
@@ -73,7 +73,7 @@
 <div class="stats-row">
   <div class="stat-card"><div class="stat-num" id="total-count">0</div><div class="stat-label">Responses</div></div>
   <div class="stat-card"><div class="stat-num" id="tribe-count">5</div><div class="stat-label">Tribes</div></div>
-  <div class="stat-card"><div class="stat-num" id="top-tribe-emoji">—</div><div class="stat-label">Biggest Tribe</div></div>
+  <div class="stat-card"><div class="stat-num" id="top-tribe-emoji">-</div><div class="stat-label">Biggest Tribe</div></div>
   <div class="stat-card"><div class="stat-num" id="msg-count">0</div><div class="stat-label">Messages</div></div>
 </div>
 
@@ -157,7 +157,7 @@ function updateUI(){
   document.getElementById('total-count').textContent=total;
   let maxT=TRIBES[0];
   TRIBES.forEach(t=>{if((tribeCounts[t.name]||0)>(tribeCounts[maxT.name]||0))maxT=t;});
-  document.getElementById('top-tribe-emoji').textContent=total>0?maxT.emoji:'—';
+  document.getElementById('top-tribe-emoji').textContent=total>0?maxT.emoji:'-';
   TRIBES.forEach(tribe=>{
     const cnt=tribeCounts[tribe.name]||0;
     const pct=total>0?Math.round((cnt/total)*100):0;
