@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Find Your Tribe - Dashboard</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: #0a0714;
+    color: #fff;
+    min-height: 100vh;
+    padding: 32px;
+    overflow-x: hidden;
+  }
+
+  header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 40px;
+  }
+
+  header h1 {
+    font-size: 32px;
+    font-weight: 800;
+    background: linear-gradient(135deg, #a78bfa, #f472b6, #fb923c);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .live-badge {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: #0f2d1a;
+    border: 1px solid #166534;
+    border-radius: 20px;
+    padding: 8px 16px;
+    font-size: 13px;
+    color: #4ade80;
+    font-weight: 600;
+  }
+
+  .live-dot {
+    width: 8px;
+    height: 8px;
+    background: #4ade80;
+    border-radius: 50%;
+    animation: blink 1.2s ease-in-out infinite;
+  }
+
+  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
+
+  .stats-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 16px;
+    margin-bottom: 40px;
+  }
+
+  .stat-card {
+    background: #13102a;
+    border: 1px solid #2d2450;
+    border-radius: 16px;
+    padding: 20px;
+    text-align: center;
+  }
+
+  .stat-num {
+    font-size: 42px;
+    font-weight: 800;
+    background: linear-gradient(135deg, #a78bfa, #f472b6);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    line-height: 1;
+    margin-bottom: 6px;
+  }
+
+  .stat-label {
+    font-size: 12px;
+    color: #6b7280;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+
+  .tribes-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 20px;
+    margin-bottom: 40px;
+  }
+
+  .tribe-card {
+    background: #13102a;
+    border: 1px solid #2d2450;
+    border-radius: 20px;
+    padding: 24px;
+    transition: transform 0.3s, border-color 0.3s;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .tribe-card:hover { transform: translateY(-2px); }
+
+  .tribe-card-glow {
+    position: absolute;
+    top: -40px; right: -40px;
+    width: 120px; height: 120px;
+    border-radius: 50%;
+    opacity: 0.12;
+    pointer-events: none;
+  }
+
+  .tribe-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 16px;
+  }
+
+  .tribe-emoji {
+    font-size: 32px;
+    width: 52px;
+    height: 52px;
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .tribe-info h3 {
+    font-size: 17px;
+    font-weight: 700;
+    margin-bottom: 3px;
+  }
+
+  .tribe-info span {
+    font-size: 12px;
+    color: #6b7280;
+  }
+
+  .bar-container {
+    margin-top: 12px;
+  }
+
+  .bar-track {
+    height: 8px;
+    background: #1f1a2e;
+    border-radius: 4px;
+    overflow: hidden;
+    margin-bottom: 8px;
+  }
+
+  .bar-fill {
+    height: 100%;
+    border-radius: 4px;
+    transition: width 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
+    width: 0%;
+  }
+
+  .bar-row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 13px;
+  }
+
+  .bar-count { font-weight: 700; color: #e5e7eb; }
+  .bar-pct { color: #6b7280; }
+
+  /* Live feed */
+  .feed-section { margin-bottom: 40px; }
+
+  .section-title {
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: #6b7280;
+    margin-bottom: 16px;
+  }
+
+  .feed {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    max-height: 260px;
+    overflow-y: auto;
+  }
+
+  .feed-item {
+    background: #13102a;
+    border: 1px solid #2d2450;
+    border-radius: 10px;
+    padding: 10px 14px;
+    font-size: 13px;
+    color: #9ca3af;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    animation: fadeIn 0.4s ease;
+  }
+
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+
+  .feed-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  /* Cluster button */
+  .cluster-btn {
+    background: linear-gradient(135deg, #7c3aed, #db2777);
+    color: #fff;
+    border: none;
+    border-radius: 14px;
+    padding: 16px 32px;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: block;
+    margin: 0 auto 40px;
+  }
+
+  .cluster-btn:hover { opacity: 0.9; transform: translateY(-2px); }
+
+  /* Cluster viz */
+  #cluster-viz { display: none; margin-bottom: 40px; }
+  #cluster-viz.show { display: block; }
+
+  .cluster-canvas-wrap {
+    background: #13102a;
+    border: 1px solid #2d2450;
+    border-radius: 20px;
+    padding: 24px;
+    text-align: center;
+  }
+
+  canvas { max-width: 100%; }
+
+  .empty-state {
+    text-align: center;
+    color: #4b5563;
+    padding: 60px 20px;
+    font-size: 16px;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Find Your Tribe 🔮</h1>
+  <div class="live-badge"><div class="live-dot"></div>Live</div>
+</header>
+
+<div class="stats-row">
+  <div class="stat-card">
+    <div class="stat-num" id="total-count">0</div>
+    <div class="stat-label">Responses</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-num" id="tribe-count">5</div>
+    <div class="stat-label">Tribes</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-num" id="top-tribe-emoji">-</div>
+    <div class="stat-label">Biggest tribe</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-num" id="last-min">0</div>
+    <div class="stat-label">Last 60 sec</div>
+  </div>
+</div>
+
+<div class="tribes-grid" id="tribes-grid"></div>
+
+<button class="cluster-btn" onclick="showCluster()">✨ Show AI Clustering on Screen</button>
+
+<div id="cluster-viz">
+  <div class="section-title">AI cluster map</div>
+  <div class="cluster-canvas-wrap">
+    <canvas id="cluster-canvas" width="800" height="420"></canvas>
+  </div>
+</div>
+
+<div class="feed-section">
+  <div class="section-title">Live responses</div>
+  <div class="feed" id="live-feed">
+    <div class="empty-state" id="empty-msg">Waiting for students to join...</div>
+  </div>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getDatabase, ref, onValue, onChildAdded } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyAKoOj5dk0esNVsB_lpYFD1ppRRl7BFP04",
+  authDomain: "find-your-tribe-aa31b.firebaseapp.com",
+  databaseURL: "https://find-your-tribe-aa31b-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "find-your-tribe-aa31b",
+  storageBucket: "find-your-tribe-aa31b.firebasestorage.app",
+  messagingSenderId: "604238499467",
+  appId: "1:604238499467:web:cff438ceab4616abb2ce8e"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
+
+const TRIBES = [
+  { name: "The Night Owls",     emoji: "🌙", color: "#7c3aed", bg: "#4c1d95" },
+  { name: "The Dream Builders", emoji: "⚡", color: "#d97706", bg: "#92400e" },
+  { name: "The Quiet Rebels",   emoji: "🌊", color: "#0d9488", bg: "#134e4a" },
+  { name: "The Fire Starters",  emoji: "🔥", color: "#dc2626", bg: "#7f1d1d" },
+  { name: "The Free Spirits",   emoji: "🦋", color: "#2563eb", bg: "#1e3a8a" }
+];
+
+let allResponses = [];
+let tribeCounts = {};
+TRIBES.forEach(t => tribeCounts[t.name] = 0);
+
+// Build tribe cards
+const grid = document.getElementById('tribes-grid');
+TRIBES.forEach(tribe => {
+  const card = document.createElement('div');
+  card.className = 'tribe-card';
+  card.id = 'card-' + tribe.name.replace(/\s/g, '-');
+  card.innerHTML = `
+    <div class="tribe-card-glow" style="background:${tribe.color}"></div>
+    <div class="tribe-header">
+      <div class="tribe-emoji" style="background:${tribe.bg}20;border:1px solid ${tribe.color}40">${tribe.emoji}</div>
+      <div class="tribe-info">
+        <h3 style="color:${tribe.color}">${tribe.name}</h3>
+        <span>0 members</span>
+      </div>
+    </div>
+    <div class="bar-container">
+      <div class="bar-track"><div class="bar-fill" style="background:${tribe.color}" id="bar-${tribe.name.replace(/\s/g,'-')}"></div></div>
+      <div class="bar-row">
+        <span class="bar-count" id="cnt-${tribe.name.replace(/\s/g,'-')}">0 students</span>
+        <span class="bar-pct" id="pct-${tribe.name.replace(/\s/g,'-')}">0%</span>
+      </div>
+    </div>`;
+  grid.appendChild(card);
+});
+
+function updateUI() {
+  const total = allResponses.length;
+  document.getElementById('total-count').textContent = total;
+
+  // last 60 sec
+  const now = Date.now();
+  const recent = allResponses.filter(r => r.ts && (now - r.ts) < 60000).length;
+  document.getElementById('last-min').textContent = recent;
+
+  // biggest tribe
+  let maxT = TRIBES[0];
+  TRIBES.forEach(t => { if ((tribeCounts[t.name] || 0) > (tribeCounts[maxT.name] || 0)) maxT = t; });
+  document.getElementById('top-tribe-emoji').textContent = total > 0 ? maxT.emoji : '-';
+
+  // update tribe cards
+  TRIBES.forEach(tribe => {
+    const cnt = tribeCounts[tribe.name] || 0;
+    const pct = total > 0 ? Math.round((cnt / total) * 100) : 0;
+    const key = tribe.name.replace(/\s/g, '-');
+    const bar = document.getElementById('bar-' + key);
+    const cntEl = document.getElementById('cnt-' + key);
+    const pctEl = document.getElementById('pct-' + key);
+    const card = document.getElementById('card-' + key);
+    if (bar) bar.style.width = pct + '%';
+    if (cntEl) cntEl.textContent = cnt + ' student' + (cnt !== 1 ? 's' : '');
+    if (pctEl) pctEl.textContent = pct + '%';
+    if (card) {
+      const info = card.querySelector('.tribe-info span');
+      if (info) info.textContent = cnt + ' member' + (cnt !== 1 ? 's' : '');
+      card.style.borderColor = cnt > 0 ? tribe.color + '60' : '#2d2450';
+    }
+  });
+}
+
+// Load all data
+onValue(ref(db, 'responses'), snap => {
+  allResponses = [];
+  tribeCounts = {};
+  TRIBES.forEach(t => tribeCounts[t.name] = 0);
+  const data = snap.val() || {};
+  Object.values(data).forEach(r => {
+    allResponses.push(r);
+    if (r.tribe && tribeCounts[r.tribe] !== undefined) tribeCounts[r.tribe]++;
+  });
+  updateUI();
+});
+
+// Live feed
+let feedInit = false;
+setTimeout(() => { feedInit = true; }, 3000);
+
+onChildAdded(ref(db, 'responses'), snap => {
+  if (!feedInit) return;
+  const r = snap.val();
+  if (!r || !r.tribe) return;
+
+  const emptyMsg = document.getElementById('empty-msg');
+  if (emptyMsg) emptyMsg.remove();
+
+  const tribe = TRIBES.find(t => t.name === r.tribe);
+  const feed = document.getElementById('live-feed');
+  const item = document.createElement('div');
+  item.className = 'feed-item';
+  item.innerHTML = `
+    <div class="feed-dot" style="background:${tribe ? tribe.color : '#6b7280'}"></div>
+    <span>A new student joined <strong style="color:${tribe ? tribe.color : '#fff'}">${r.tribe}</strong></span>
+    <span style="margin-left:auto;font-size:11px;color:#4b5563">${tribe ? tribe.emoji : ''}</span>`;
+  feed.insertBefore(item, feed.firstChild);
+  if (feed.children.length > 20) feed.removeChild(feed.lastChild);
+});
+
+// Cluster viz
+window.showCluster = function() {
+  const viz = document.getElementById('cluster-viz');
+  viz.classList.add('show');
+  viz.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  drawCluster();
+};
+
+function drawCluster() {
+  const canvas = document.getElementById('cluster-canvas');
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+  ctx.clearRect(0, 0, W, H);
+
+  const centers = [
+    { x: 0.25, y: 0.3  },
+    { x: 0.75, y: 0.25 },
+    { x: 0.5,  y: 0.65 },
+    { x: 0.15, y: 0.72 },
+    { x: 0.82, y: 0.7  }
+  ];
+
+  // Draw connecting lines (faint)
+  ctx.strokeStyle = 'rgba(167,139,250,0.06)';
+  ctx.lineWidth = 1;
+  TRIBES.forEach((_, i) => {
+    TRIBES.forEach((_, j) => {
+      if (i >= j) return;
+      ctx.beginPath();
+      ctx.moveTo(centers[i].x * W, centers[i].y * H);
+      ctx.lineTo(centers[j].x * W, centers[j].y * H);
+      ctx.stroke();
+    });
+  });
+
+  TRIBES.forEach((tribe, i) => {
+    const cnt = tribeCounts[tribe.name] || 0;
+    const cx = centers[i].x * W;
+    const cy = centers[i].y * H;
+    const radius = Math.max(30, Math.min(80, 28 + cnt * 3.5));
+
+    // Glow ring
+    ctx.beginPath();
+    ctx.arc(cx, cy, radius + 14, 0, Math.PI * 2);
+    ctx.fillStyle = tribe.color + '18';
+    ctx.fill();
+
+    // Main bubble
+    ctx.beginPath();
+    ctx.arc(cx, cy, radius, 0, Math.PI * 2);
+    ctx.fillStyle = tribe.color + '30';
+    ctx.fill();
+    ctx.strokeStyle = tribe.color + 'aa';
+    ctx.lineWidth = 2;
+    ctx.stroke();
+
+    // Scatter dots for members
+    for (let d = 0; d < Math.min(cnt, 30); d++) {
+      const angle = (d / Math.min(cnt, 30)) * Math.PI * 2;
+      const spread = (radius - 10) * (0.3 + Math.random() * 0.6);
+      const dx = cx + Math.cos(angle) * spread * (0.7 + Math.random() * 0.6);
+      const dy = cy + Math.sin(angle) * spread * (0.7 + Math.random() * 0.6);
+      ctx.beginPath();
+      ctx.arc(dx, dy, 3, 0, Math.PI * 2);
+      ctx.fillStyle = tribe.color + 'cc';
+      ctx.fill();
+    }
+
+    // Emoji
+    ctx.font = `${Math.round(radius * 0.65)}px serif`;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(tribe.emoji, cx, cy - 8);
+
+    // Count
+    ctx.font = 'bold 13px -apple-system, sans-serif';
+    ctx.fillStyle = '#fff';
+    ctx.fillText(cnt, cx, cy + radius * 0.55);
+
+    // Name label
+    ctx.font = 'bold 12px -apple-system, sans-serif';
+    ctx.fillStyle = tribe.color;
+    ctx.fillText(tribe.name, cx, cy + radius + 18);
+  });
+}
+</script>
+</body>
+</html>
