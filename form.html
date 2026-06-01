@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Find Your Tribe</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: #0f0c1a;
+    color: #fff;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 24px 20px;
+  }
+
+  .header {
+    text-align: center;
+    margin-bottom: 32px;
+  }
+
+  .header h1 {
+    font-size: 28px;
+    font-weight: 700;
+    background: linear-gradient(135deg, #a78bfa, #f472b6, #fb923c);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 8px;
+  }
+
+  .header p {
+    font-size: 14px;
+    color: #9ca3af;
+  }
+
+  .progress-bar {
+    width: 100%;
+    max-width: 400px;
+    height: 4px;
+    background: #1f1a2e;
+    border-radius: 2px;
+    margin-bottom: 32px;
+    overflow: hidden;
+  }
+
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #a78bfa, #f472b6);
+    border-radius: 2px;
+    transition: width 0.4s ease;
+  }
+
+  .card {
+    background: #1a1630;
+    border: 1px solid #2d2450;
+    border-radius: 20px;
+    padding: 28px 24px;
+    width: 100%;
+    max-width: 400px;
+    margin-bottom: 16px;
+  }
+
+  .question-num {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    color: #a78bfa;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+
+  .question-text {
+    font-size: 20px;
+    font-weight: 600;
+    color: #f3f4f6;
+    margin-bottom: 20px;
+    line-height: 1.4;
+  }
+
+  .options {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .option-btn {
+    background: #0f0c1a;
+    border: 1.5px solid #2d2450;
+    border-radius: 12px;
+    padding: 14px 16px;
+    color: #e5e7eb;
+    font-size: 15px;
+    cursor: pointer;
+    text-align: left;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .option-btn:hover {
+    border-color: #a78bfa;
+    background: #1a1630;
+  }
+
+  .option-btn.selected {
+    border-color: #a78bfa;
+    background: #1e1040;
+    color: #fff;
+  }
+
+  .option-btn .emoji {
+    font-size: 20px;
+    width: 28px;
+    text-align: center;
+  }
+
+  .emoji-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 10px;
+    margin-top: 4px;
+  }
+
+  .emoji-btn {
+    background: #0f0c1a;
+    border: 1.5px solid #2d2450;
+    border-radius: 12px;
+    padding: 12px 8px;
+    font-size: 24px;
+    cursor: pointer;
+    text-align: center;
+    transition: all 0.2s;
+  }
+
+  .emoji-btn:hover { border-color: #a78bfa; }
+  .emoji-btn.selected { border-color: #f472b6; background: #1e1040; }
+
+  .nav-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    max-width: 400px;
+    margin-top: 8px;
+  }
+
+  .btn {
+    padding: 14px 28px;
+    border-radius: 12px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+    transition: all 0.2s;
+  }
+
+  .btn-primary {
+    background: linear-gradient(135deg, #7c3aed, #db2777);
+    color: #fff;
+    flex: 1;
+  }
+
+  .btn-primary:hover { opacity: 0.9; transform: translateY(-1px); }
+  .btn-primary:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+
+  .btn-ghost {
+    background: transparent;
+    color: #6b7280;
+    border: 1px solid #2d2450;
+    margin-right: 12px;
+    padding: 14px 20px;
+  }
+
+  .btn-ghost:hover { color: #9ca3af; border-color: #4b5563; }
+
+  /* Tribe reveal screen */
+  .reveal {
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    width: 100%;
+    max-width: 400px;
+  }
+
+  .reveal.show { display: flex; }
+
+  .tribe-orb {
+    width: 140px;
+    height: 140px;
+    border-radius: 50%;
+    margin-bottom: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 52px;
+    animation: pulse 2s ease-in-out infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.06); opacity: 0.9; }
+  }
+
+  .tribe-label {
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+    opacity: 0.7;
+  }
+
+  .tribe-name {
+    font-size: 32px;
+    font-weight: 800;
+    margin-bottom: 12px;
+    line-height: 1.2;
+  }
+
+  .tribe-desc {
+    font-size: 16px;
+    color: #9ca3af;
+    line-height: 1.6;
+    margin-bottom: 32px;
+    max-width: 300px;
+  }
+
+  .tribe-count {
+    font-size: 14px;
+    color: #6b7280;
+    margin-top: 16px;
+  }
+
+  .loading {
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+    padding: 40px;
+  }
+
+  .loading.show { display: flex; }
+
+  .spinner {
+    width: 40px;
+    height: 40px;
+    border: 3px solid #2d2450;
+    border-top-color: #a78bfa;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .loading p { color: #9ca3af; font-size: 15px; }
+</style>
+</head>
+<body>
+
+<div id="form-view" style="width:100%;display:flex;flex-direction:column;align-items:center;">
+  <div class="header">
+    <h1>Find Your Tribe</h1>
+    <p>Answer 5 quick questions - AI will find your people</p>
+  </div>
+
+  <div class="progress-bar">
+    <div class="progress-fill" id="progress" style="width:20%"></div>
+  </div>
+
+  <div class="card" id="question-card">
+    <div class="question-num" id="q-num">Question 1 of 5</div>
+    <div class="question-text" id="q-text"></div>
+    <div id="q-options"></div>
+  </div>
+
+  <div class="nav-row">
+    <button class="btn btn-ghost" id="back-btn" onclick="prevQuestion()" style="display:none">Back</button>
+    <button class="btn btn-primary" id="next-btn" onclick="nextQuestion()" disabled>Continue →</button>
+  </div>
+</div>
+
+<div class="loading" id="loading-view">
+  <div class="spinner"></div>
+  <p>Finding your tribe...</p>
+</div>
+
+<div class="reveal" id="reveal-view">
+  <div class="tribe-orb" id="tribe-orb"></div>
+  <div class="tribe-label">You are</div>
+  <div class="tribe-name" id="tribe-name"></div>
+  <div class="tribe-desc" id="tribe-desc"></div>
+  <div class="tribe-count" id="tribe-count"></div>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getDatabase, ref, push, onValue } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyAKoOj5dk0esNVsB_lpYFD1ppRRl7BFP04",
+  authDomain: "find-your-tribe-aa31b.firebaseapp.com",
+  databaseURL: "https://find-your-tribe-aa31b-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "find-your-tribe-aa31b",
+  storageBucket: "find-your-tribe-aa31b.firebasestorage.app",
+  messagingSenderId: "604238499467",
+  appId: "1:604238499467:web:cff438ceab4616abb2ce8e"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
+
+const questions = [
+  {
+    text: "What's your music vibe?",
+    options: [
+      { emoji: "🎸", label: "Rock / Metal", value: 1 },
+      { emoji: "🎵", label: "Pop / R&B", value: 2 },
+      { emoji: "🎧", label: "EDM / Hip-hop", value: 3 },
+      { emoji: "🎻", label: "Classical / Jazz", value: 4 },
+      { emoji: "🌍", label: "Folk / Indie", value: 5 },
+    ]
+  },
+  {
+    text: "When do you come alive?",
+    options: [
+      { emoji: "🌅", label: "Early bird - up before 7am", value: 1 },
+      { emoji: "☀️", label: "Morning person - 7–10am", value: 2 },
+      { emoji: "🌤️", label: "Afternoon - peak after lunch", value: 3 },
+      { emoji: "🌙", label: "Night owl - best after 10pm", value: 4 },
+    ]
+  },
+  {
+    text: "Your dream career?",
+    options: [
+      { emoji: "💡", label: "Build something / Entrepreneur", value: 1 },
+      { emoji: "🎨", label: "Create / Artist / Designer", value: 2 },
+      { emoji: "🔬", label: "Discover / Researcher / Scientist", value: 3 },
+      { emoji: "🤝", label: "Lead / Manager / Politician", value: 4 },
+      { emoji: "✈️", label: "Explore / Travel / Experience", value: 5 },
+    ]
+  },
+  {
+    text: "How do you recharge?",
+    options: [
+      { emoji: "🎉", label: "Big social gatherings", value: 1 },
+      { emoji: "👥", label: "Small group of close friends", value: 2 },
+      { emoji: "🎮", label: "Solo - games, music, hobbies", value: 3 },
+      { emoji: "📚", label: "Solo - reading, reflecting", value: 4 },
+    ]
+  },
+  {
+    text: "Pick the emoji that is SO you:",
+    type: "emoji",
+    options: ["🔥","⚡","🌊","🌿","🎯","💎","🌙","☀️","🦋","🐺"]
+  }
+];
+
+const tribes = [
+  {
+    name: "The Night Owls",
+    desc: "Creative, deep thinkers who do their best work when the world is quiet. You see things others miss.",
+    color: "#7c3aed",
+    bg: "linear-gradient(135deg, #4c1d95, #7c3aed)",
+    emoji: "🌙",
+    vector: [3, 4, 2, 3.5]
+  },
+  {
+    name: "The Dream Builders",
+    desc: "Ambitious and future-focused. You don't just have big dreams - you're already planning how to build them.",
+    color: "#d97706",
+    bg: "linear-gradient(135deg, #92400e, #d97706)",
+    emoji: "⚡",
+    vector: [2, 2, 1, 2]
+  },
+  {
+    name: "The Quiet Rebels",
+    desc: "Introverted but fiercely original. You challenge norms silently but powerfully.",
+    color: "#0d9488",
+    bg: "linear-gradient(135deg, #134e4a, #0d9488)",
+    emoji: "🌊",
+    vector: [5, 3, 3, 4]
+  },
+  {
+    name: "The Fire Starters",
+    desc: "The energy of every room. People gravitate to you - you make things happen and bring everyone along.",
+    color: "#dc2626",
+    bg: "linear-gradient(135deg, #7f1d1d, #dc2626)",
+    emoji: "🔥",
+    vector: [2, 1, 4, 1]
+  },
+  {
+    name: "The Free Spirits",
+    desc: "Curious, adaptable, and impossible to box in. You're drawn to experiences over possessions.",
+    color: "#2563eb",
+    bg: "linear-gradient(135deg, #1e3a8a, #2563eb)",
+    emoji: "🦋",
+    vector: [3, 3, 5, 2]
+  }
+];
+
+let current = 0;
+let answers = [];
+
+function assignTribe(ans) {
+  const v = ans.slice(0, 4);
+  let best = 0, bestDist = Infinity;
+  tribes.forEach((t, i) => {
+    const dist = Math.sqrt(t.vector.reduce((s, tv, j) => s + Math.pow(tv - (v[j] || 3), 2), 0));
+    if (dist < bestDist) { bestDist = dist; best = i; }
+  });
+  return tribes[best];
+}
+
+function renderQuestion() {
+  const q = questions[current];
+  document.getElementById('q-num').textContent = `Question ${current + 1} of 5`;
+  document.getElementById('q-text').textContent = q.text;
+  document.getElementById('progress').style.width = `${((current + 1) / 5) * 100}%`;
+  document.getElementById('back-btn').style.display = current > 0 ? 'block' : 'none';
+  document.getElementById('next-btn').disabled = !answers[current];
+
+  const container = document.getElementById('q-options');
+  container.innerHTML = '';
+
+  if (q.type === 'emoji') {
+    const grid = document.createElement('div');
+    grid.className = 'emoji-grid';
+    q.options.forEach((em, i) => {
+      const btn = document.createElement('button');
+      btn.className = 'emoji-btn' + (answers[current] === i + 1 ? ' selected' : '');
+      btn.textContent = em;
+      btn.onclick = () => {
+        answers[current] = i + 1;
+        grid.querySelectorAll('.emoji-btn').forEach(b => b.classList.remove('selected'));
+        btn.classList.add('selected');
+        document.getElementById('next-btn').disabled = false;
+      };
+      grid.appendChild(btn);
+    });
+    container.appendChild(grid);
+  } else {
+    const opts = document.createElement('div');
+    opts.className = 'options';
+    q.options.forEach(opt => {
+      const btn = document.createElement('button');
+      btn.className = 'option-btn' + (answers[current] === opt.value ? ' selected' : '');
+      btn.innerHTML = `<span class="emoji">${opt.emoji}</span><span>${opt.label}</span>`;
+      btn.onclick = () => {
+        answers[current] = opt.value;
+        opts.querySelectorAll('.option-btn').forEach(b => b.classList.remove('selected'));
+        btn.classList.add('selected');
+        document.getElementById('next-btn').disabled = false;
+      };
+      opts.appendChild(btn);
+    });
+    container.appendChild(opts);
+  }
+}
+
+window.nextQuestion = function() {
+  if (current < 4) {
+    current++;
+    renderQuestion();
+  } else {
+    submitAndReveal();
+  }
+};
+
+window.prevQuestion = function() {
+  if (current > 0) { current--; renderQuestion(); }
+};
+
+async function submitAndReveal() {
+  document.getElementById('form-view').style.display = 'none';
+  document.getElementById('loading-view').classList.add('show');
+
+  const tribe = assignTribe(answers);
+
+  await push(ref(db, 'responses'), {
+    q1: answers[0], q2: answers[1], q3: answers[2],
+    q4: answers[3], q5: answers[4],
+    tribe: tribe.name,
+    ts: Date.now()
+  });
+
+  setTimeout(() => {
+    document.getElementById('loading-view').classList.remove('show');
+    showReveal(tribe);
+  }, 1800);
+}
+
+function showReveal(tribe) {
+  const reveal = document.getElementById('reveal-view');
+  reveal.classList.add('show');
+
+  const orb = document.getElementById('tribe-orb');
+  orb.style.background = tribe.bg;
+  orb.textContent = tribe.emoji;
+
+  document.getElementById('tribe-name').textContent = tribe.name;
+  document.getElementById('tribe-name').style.color = tribe.color;
+  document.getElementById('tribe-desc').textContent = tribe.desc;
+
+  onValue(ref(db, 'responses'), snap => {
+    const data = snap.val() || {};
+    const count = Object.values(data).filter(r => r.tribe === tribe.name).length;
+    document.getElementById('tribe-count').textContent = `${count} student${count !== 1 ? 's' : ''} in your tribe so far`;
+  }, { onlyOnce: true });
+}
+
+renderQuestion();
+</script>
+</body>
+</html>
