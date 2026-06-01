@@ -84,5 +84,7 @@ Fix: Go to Firebase, delete the responses node, refresh the dashboard.
 TECH USED
 
 Firebase Realtime Database  - stores student responses live
+
 Vercel                      - hosts the two HTML pages for free
+
 K-means clustering          - groups students into tribes, runs in the browser, no API needed
